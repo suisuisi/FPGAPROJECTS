@@ -1,0 +1,89 @@
+/ {
+	model = "Avnet-Silica Artix UltraScale+ TRD";
+
+
+/* bootargs down't work, needs to be set in petalinux config */
+	chosen {
+/*		bootargs = "console=ttyUL0,115200 earlycon root=/dev/ram0 rw cma=128M uio_pdrv_genirq.of_id=generic-uio"; */
+		bootargs = "console=ttyUL0,115200 root=ubi0:rootfs rw ubi.mtd=spi0-ubi rootfstype=ubifs rootwait cma=128M uio_pdrv_genirq.of_id=generic-uio";
+		stdout-path = "serial0:115200n8";
+	};
+
+	gpio-leds {
+		compatible = "gpio-leds";
+		led1 {
+			label = "led-1";
+			gpios = <&peripherals_axi_gpio_0 0 0>;
+			default-state = "on";
+			linux,default-trigger = "heartbeat";
+		};
+		led2 {
+			label = "led-2";
+			gpios = <&peripherals_axi_gpio_0 1 0>;
+			default-state = "off";
+		};
+		led3 {
+			label = "led-3";
+			gpios = <&peripherals_axi_gpio_0 2 0>;
+			default-state = "off";
+		};
+		led4 {
+			label = "led-4";
+			gpios = <&peripherals_axi_gpio_0 3 0>;
+			default-state = "off";
+		};
+	};
+
+	udmabuf@0x00 {
+		compatible = "ikwzm,u-dma-buf";
+		device-name = "udmabuf0";
+		minor-number = <0>;
+		size = <0x00400000>;
+	};
+};
+
+/*
+&peripherals_hier_dfxc_timer {
+	status = "disabled";
+};
+*/
+
+
+&peripherals_dfx_controller_0 {
+	compatible = "generic-uio";
+};
+
+
+/*
+&peripherals_axi_hwicap_0 {
+	compatible = "generic-uio";
+};
+*/
+
+&peripherals_axi_ethernetlite_0 {
+	local-mac-address = [00 0a 35 00 22 22];
+	phy-handle = <&phy0>;
+	xlnx,has-mdio = <0x1>;
+	mdio {
+		#address-cells = <1>;
+		#size-cells = <0>;
+		phy0: phy@1 {
+			device_type = "ethernet-phy";
+			reg = <1>;
+		};
+	};
+};
+
+&peripherals_axi_iic_0 {
+	i2c-switch@70 {
+		compatible = "nxp,pca9544";
+		#address-cells = <1>;
+		#size-cells = <0>;
+		reg = <0x70>;
+	};
+	eeprom: eeprom@58 {
+		compatible = "atmel,24mac402";
+		reg = <0x58>;
+	};
+};
+

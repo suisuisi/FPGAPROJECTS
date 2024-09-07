@@ -1,0 +1,45 @@
+#!/bin/sh
+### BEGIN INIT INFO
+# Provides:          openamp example
+# Default-Start:     3 5
+# Default-Stop:      0 1 2 6
+# Short-Description: Avnet-Silica example script to loard cortex-r5
+### END INIT INFO
+
+FIRMWARE_PATH=/lib/firmware/openamp-remote.elf
+ELF_NAME=`basename $FIRMWARE_PATH`
+SYS_CONTROL_BASE=/sys/devices/platform/ff9a0000.rf5ss/ff9a0000.rf5ss:r5f@0/remoteproc/remoteproc0
+
+. /etc/init.d/functions
+
+
+PATH=/sbin:/usr/sbin:/bin:/usr/bin
+export PATH
+
+RETVAL=0
+
+
+case "$1" in
+    start)
+        echo "Loading $FIRMWARE_PATH"
+        sleep 1
+        echo $ELF_NAME > $SYS_CONTROL_BASE/firmware
+        echo start > $SYS_CONTROL_BASE/state
+        ;;
+
+    stop)
+        echo stop > $SYS_CONTROL_BASE/state
+        ;;
+
+    restart)
+        $0 stop
+        sleep 1
+        $0 start
+        ;;
+
+    *)
+        echo "usage: $0 { start | stop | restart }"
+        ;;
+esac
+
+exit $RETVAL
